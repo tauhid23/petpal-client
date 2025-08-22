@@ -52,7 +52,7 @@ const MyPets: React.FC = () => {
       ) : (
         <div className="max-w-6xl mx-auto ">
           {pets.map((pet) => (
-            <PetCard key={pet.id} pet={pet} />
+            <PetCard key={pet.id} pet={pet} onPetUpdate={loadPets} />
           ))}
         </div>
       )}

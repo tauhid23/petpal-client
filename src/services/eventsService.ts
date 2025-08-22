@@ -1,65 +1,58 @@
-// src/services/eventService.ts
-
-export interface CalendarEvent {
+// src/services/scheduleService.ts
+export interface ScheduleItem {
   id: string;
-  title: string;
-  date: string; // ISO YYYY-MM-DD
-  time?: string; // "HH:mm"
+  petId: string;
+  type: "vet" | "walk" | "meds" | string;
+  date: string;
 }
 
-const STORAGE_KEY = "calendar_events_v1";
-
-function read(): CalendarEvent[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as CalendarEvent[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function write(events: CalendarEvent[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
-}
-
-// ---------- Public API (mock) ----------
-export async function listEventsByMonth(year: number, month: number) {
-  // month: 0-11
-  const all = read();
-  return all.filter((e) => {
-    const d = new Date(e.date + "T00:00:00");
-    return d.getFullYear() === year && d.getMonth() === month;
+// Add Schedule
+export const addSchedule = async (scheduleData: Omit<Partial<ScheduleItem>, "id">): Promise<ScheduleItem> => {
+  const res = await fetch("http://localhost:5000/api/schedules", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(scheduleData),
   });
-}
 
-export async function listEventsForDate(isoDate: string) {
-  return read().filter((e) => e.date === isoDate);
-}
+  if (!res.ok) throw new Error("Failed to add schedule");
+  return res.json();
+};
 
-export async function createEvent(input: Omit<CalendarEvent, "id">) {
-  const evt: CalendarEvent = { id: crypto.randomUUID(), ...input };
-  const all = read();
-  all.push(evt);
-  write(all);
-  return evt;
-}
+// Get All Schedules
+export const fetchSchedules = async (): Promise<ScheduleItem[]> => {
+  const res = await fetch("http://localhost:5000/api/schedules");
+  if (!res.ok) throw new Error("Failed to fetch schedules");
+  return res.json();
+};
 
-export async function updateEvent(
-  id: string,
-  patch: Partial<Omit<CalendarEvent, "id">>
-) {
-  const all = read();
-  const idx = all.findIndex((e) => e.id === id);
-  if (idx >= 0) {
-    all[idx] = { ...all[idx], ...patch };
-    write(all);
-    return all[idx];
-  }
-  throw new Error("Event not found");
-}
+// Get Schedule by ID
+export const fetchScheduleById = async (id: string): Promise<ScheduleItem> => {
+  const res = await fetch(`http://localhost:5000/api/schedules/${id}`);
+  if (!res.ok) throw new Error("Failed to fetch schedule");
+  return res.json();
+};
 
-export async function deleteEvent(id: string) {
-  const all = read().filter((e) => e.id !== id);
-  write(all);
-  return true;
-}
+// Get Schedules by Pet ID
+export const fetchSchedulesByPetId = async (petId: string): Promise<ScheduleItem[]> => {
+  const res = await fetch(`http://localhost:5000/api/schedules/pets/${petId}`);
+  if (!res.ok) throw new Error("Failed to fetch schedules for this pet");
+  return res.json();
+};
+
+// Update Schedule
+export const updateSchedule = async (id: string, scheduleData: Partial<Omit<ScheduleItem, "id">>): Promise<ScheduleItem> => {
+  const res = await fetch(`http://localhost:5000/api/schedules/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(scheduleData),
+  });
+
+  if (!res.ok) throw new Error("Failed to update schedule");
+  return res.json();
+};
+
+// Delete Schedule
+export const deleteSchedule = async (id: string): Promise<void> => {
+  const res = await fetch(`http://localhost:5000/api/schedules/${id}`, { method: "DELETE" });
+  if (!res.ok) throw new Error("Failed to delete schedule");
+};

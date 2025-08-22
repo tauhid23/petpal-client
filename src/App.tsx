@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import AddPet from "./pages/AddPet";
 import CalendarPage from "./pages/CalenderPage";
 import MyPets from "./pages/MyPets";
+import EditPetForm from "./components/EditPetForm";
 
 
 function App() {
@@ -17,6 +18,8 @@ function App() {
           <Route path="/pets" element={<MyPets/>} />
           <Route path="/add-pet" element={<AddPet />} />
           <Route path="/calender" element={<CalendarPage/>} />
+          {/* Edit Pet By Id */}
+          <Route path="/edit-pet/:id" element={<EditPetForm />} />
         </Routes>
       </div>
     </>
