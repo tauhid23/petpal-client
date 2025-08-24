@@ -1,8 +1,25 @@
 // src/pages/CalendarPage.tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import MonthCalendar from "../components/MonthCalender";
+import { fetchPets } from "../services/petService";
+import type { Pet } from "../services/petService";
 
 const CalendarPage: React.FC = () => {
+const [pets, setPets] = useState<Pet[]>([]);
+
+const loadPets = async () => {
+    try {
+      const data = await fetchPets();
+      setPets(data);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to fetch pets");
+    } 
+  };
+
+  useEffect(() => {
+    loadPets();
+  }, []);
   return (
     <div className="min-h-screen w-full p-6"
          style={{
@@ -15,7 +32,7 @@ const CalendarPage: React.FC = () => {
         >
           Event Calendar
         </h1>
-        <MonthCalendar />
+        <MonthCalendar pets={pets} />
       </div>
     </div>
   );

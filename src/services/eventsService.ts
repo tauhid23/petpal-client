@@ -2,7 +2,7 @@
 export interface ScheduleItem {
   id: string;
   petId: string;
-  type: "vet" | "walk" | "meds" | string;
+  type: "vet" | "walk" | "meds" | "Feed" | string;
   date: string;
 }
 

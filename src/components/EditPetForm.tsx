@@ -53,7 +53,7 @@ const EditPetForm: React.FC = () => {
 
     try {
       await editPet(id, form);
-      navigate("/");
+      navigate("/pets");
     } catch (err) {
       console.error(err);
       alert("Failed to update pet");
