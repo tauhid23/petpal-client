@@ -7,6 +7,7 @@ import MyPets from "./pages/MyPets";
 import EditPetForm from "./components/EditPetForm";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
+import PHome from './pages/PHome'
 import ProtectedRoute from "./routes/ProtectedRoutes";
 import { useAuth } from "./context/AuthContext";
 
@@ -31,6 +32,14 @@ function App() {
 
           {/* Protected */}
           <Route
+            path="/phome"
+            element={
+              <ProtectedRoute>
+                <PHome />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/pets"
             element={
               <ProtectedRoute>
@@ -46,14 +55,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-          {/* <Route
-            path="/calendar"
-            element={
-              
-                <CalendarPage />
-              
-            }
-          /> */}
           <Route
             path="/edit-pet/:id"
             element={

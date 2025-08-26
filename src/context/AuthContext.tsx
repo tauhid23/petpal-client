@@ -49,7 +49,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     setToken(token);
     setUser(userData);
-    navigate("/");
+    navigate("/phome");
   };
 
   const logout = () => {

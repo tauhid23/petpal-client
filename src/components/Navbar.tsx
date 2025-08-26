@@ -18,9 +18,18 @@ const Navbar: React.FC = () => {
 
       {/* Center: Menu */}
       <div className="hidden md:flex gap-6">
-        <NavLink to="/" className={({ isActive }) => linkClasses(isActive)}>
-          Home
-        </NavLink>
+        {user ? (
+          <NavLink
+            to="/phome"
+            className={({ isActive }) => linkClasses(isActive)}
+          >
+            Home
+          </NavLink>
+        ) : (
+          <NavLink to="/" className={({ isActive }) => linkClasses(isActive)}>
+            Home
+          </NavLink>
+        )}
         <NavLink to="/pets" className={({ isActive }) => linkClasses(isActive)}>
           My Pets
         </NavLink>
