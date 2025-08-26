@@ -34,7 +34,7 @@ export const fetchScheduleById = async (id: string): Promise<ScheduleItem> => {
 
 // Get Schedules by Pet ID
 export const fetchSchedulesByPetId = async (petId: string): Promise<ScheduleItem[]> => {
-  const res = await fetch(`http://localhost:5000/api/schedules/pets/${petId}`);
+  const res = await fetch(`http://localhost:5000/api/schedules/pet/${petId}`);
   if (!res.ok) throw new Error("Failed to fetch schedules for this pet");
   return res.json();
 };

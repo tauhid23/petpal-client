@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { addPet } from "../services/petService";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 interface PetForm {
   name: string;
@@ -9,11 +10,12 @@ interface PetForm {
   dob?: string;
   microchipId?: string;
   emergencyContact?: string;
-  photos: string[];
+  photos: string[]; // Only one URL will be stored in index 0
 }
 
 const AddPetForm: React.FC = () => {
   const navigate = useNavigate();
+  const {user} = useAuth();
 
   const [form, setForm] = useState<PetForm>({
     name: "",
@@ -30,20 +32,19 @@ const AddPetForm: React.FC = () => {
   };
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files) {
-      const urls = Array.from(files).map((file) => URL.createObjectURL(file));
-      setForm({ ...form, photos: urls });
-    }
+    // Store single image URL in photos array at index 0
+    setForm({ ...form, photos: [e.target.value] });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const payload: any = {
-      ownerId: "8f14e45f-ea3d-4e29-b59b-1d5c71a48f2a",
+      ownerId: user?.id,
       name: form.name,
     };
+
     if (form.species) payload.species = form.species;
     if (form.breed) payload.breed = form.breed;
     if (form.dob) payload.dob = form.dob;
@@ -118,11 +119,12 @@ const AddPetForm: React.FC = () => {
           />
         </div>
 
-        {/* Photos */}
+        {/* Single Photo URL */}
         <input
-          type="file"
-          multiple
-          accept="image/*"
+          type="text"
+          name="photo"
+          placeholder="Enter image URL"
+          value={form.photos[0] || ""}
           onChange={handlePhotoChange}
           className="border border-[#CADCAE] px-4 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#EDA35A] shadow-sm transition w-full"
         />

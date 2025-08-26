@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { fetchPets } from "../services/petService";
+import { fetchPetsByOwner } from "../services/petService";
 import type { Pet } from "../services/petService";
 import PetCard from "../components/petCard";
+import { useAuth } from "../context/AuthContext";
 
 const MyPets: React.FC = () => {
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
+  const {user} = useAuth();
 
   const loadPets = async () => {
     try {
-      const data = await fetchPets();
+      const data = await fetchPetsByOwner(String(user?.id ?? ""));
       setPets(data);
     } catch (err) {
       console.error(err);
@@ -25,7 +27,7 @@ const MyPets: React.FC = () => {
 
   if (loading)
     return (
-      <div className="min-h-screen flex justify-center items-center bg-[#E1E9C9]">
+      <div className="min-h-screen flex justify-center items-center bg-[#424731]">
         <p className="text-xl font-semibold text-[#EDA35A] animate-pulse">
           Loading pets...
         </p>
@@ -50,7 +52,7 @@ const MyPets: React.FC = () => {
           No pets found. Add a new pet to get started!
         </p>
       ) : (
-        <div className="max-w-6xl mx-auto ">
+        <div className="max-w-6xl mx-auto  grid grid-cols-3 gap-4">
           {pets.map((pet) => (
             <PetCard key={pet.id} pet={pet} onPetUpdate={loadPets} />
           ))}

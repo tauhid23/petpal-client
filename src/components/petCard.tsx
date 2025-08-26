@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import type { Pet } from "../services/petService";
 import { useNavigate } from "react-router-dom";
+import { fetchSchedulesByPetId } from "../services/eventsService";
+import type { ScheduleItem } from "../services/eventsService";
 
-// Assuming you already have deletePet & editPet in petService
 import { deletePet } from "../services/petService";
 
 interface Props {
@@ -11,114 +12,87 @@ interface Props {
 }
 
 const PetCard: React.FC<Props> = ({ pet, onPetUpdate }) => {
+  const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
   const navigate = useNavigate();
 
-  const handleEdit = () => {
-    navigate(`/edit-pet/${pet.id}`); // we can create EditPetForm later
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/edit-pet/${pet.id}`);
   };
 
-  const handleDelete = async () => {
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (!window.confirm("Are you sure you want to delete this pet?")) return;
     try {
       await deletePet(pet.id);
-      onPetUpdate(); // refresh list
+      onPetUpdate();
     } catch (err) {
       console.error(err);
       alert("Failed to delete pet");
     }
   };
 
-  const photo = pet.photos?.[0] || "https://via.placeholder.com/150";
-  const nextVet = pet.schedule?.find((s) => s.type === "vet")?.date || "Not scheduled";
-  const nextWalk = pet.schedule?.find((s) => s.type === "walk")?.date || "Not scheduled";
+  const handleCardClick = () => {
+    navigate(`/pets/${pet.id}`);
+  };
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await fetchSchedulesByPetId(pet.id);
+        setSchedule(data);
+      } catch (error) {
+        console.error("Failed to fetch schedules:", error);
+      }
+    })();
+  }, [pet.id]);
+
+  const photo = pet.photos?.[0] || "https://via.placeholder.com/400?text=Pet+Image";
+  const nextVet = schedule?.find((s) => s.type === "vet")?.date || "N/A";
+  const nextWalk = schedule?.find((s) => s.type === "walk")?.date || "N/A";
 
   return (
-    <div className="group relative bg-gradient-to-br from-[#E1E9C9] to-[#d4e0b8] max-w-4xl mx-auto shadow-lg rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 m-4 border border-[#c8d4a8]">
-      {/* Subtle gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-      
-      <div className="flex flex-row">
-        {/* Image Section */}
-        <div className="w-1/3 relative">
-          <div className="h-[320px] overflow-hidden">
-            <img 
-              src={photo} 
-              alt={pet.name} 
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
-              loading="lazy" 
-            />
-          </div>
-          {/* Decorative corner accent */}
-          <div className="absolute top-0 right-0 w-12 h-12 bg-gradient-to-bl from-[#EDA35A]/30 to-transparent"></div>
+    <div
+      onClick={handleCardClick}
+      className="group relative w-80 h-80 outline-1 -outline-offset-2 overflow-hidden rounded-xl shadow-lg transition-all duration-300 transform hover:scale-[1.02] cursor-pointer"
+    >
+      {/* Background Image */}
+      <img
+        src={photo}
+        alt={pet.name}
+        className="w-full h-full object-cover absolute inset-0 z-0 transition-transform duration-300 group-hover:scale-105"
+      />
+
+      {/* Hover Overlay Content */}
+      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 flex flex-col justify-end p-5">
+        <h3 className="text-xl font-bold text-white mb-2">{pet.name}</h3>
+
+        <div className="flex flex-col gap-1 text-sm text-white">
+          <p className="font-semibold">
+            <span className="text-lg">📋</span> Breed: {pet.breed || "Unknown"}
+          </p>
+          <p>Next Walk: {nextWalk}</p>
+          <p>Next Vet: {nextVet}</p>
         </div>
 
-        {/* Content Section */}
-        <div className="w-2/3 flex flex-col justify-between p-6">
-          {/* Header */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-3xl font-bold text-[#EDA35A] tracking-tight">
-                {pet.name}
-              </h2>
-              <div className="w-2 h-2 bg-[#EDA35A] rounded-full opacity-60"></div>
-            </div>
-            
-            {/* Pet Details */}
-            <div className="grid grid-cols-1 gap-2">
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
-                <span className="text-gray-700 font-medium">Species:</span>
-                <span className="text-gray-600">{pet.species || "Unknown"}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
-                <span className="text-gray-700 font-medium">Breed:</span>
-                <span className="text-gray-600">{pet.breed || "Unknown"}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
-                <span className="text-gray-700 font-medium">DOB:</span>
-                <span className="text-gray-600">{pet.dob ? pet.dob.split('T')[0] : "N/A"}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Schedule & Actions */}
-          <div className="space-y-4 mt-2">
-            {/* Schedule Info */}
-            <div className="flex flex-col sm:flex-row gap-3 p-4 bg-white/40 rounded-xl backdrop-blur-sm">
-              <div className="flex-1 flex items-center gap-2">
-                <span className="text-lg">🐕</span>
-                <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide">Next Walk</p>
-                  <p className="text-sm font-semibold text-gray-700">{nextWalk}</p>
-                </div>
-              </div>
-              <div className="flex-1 flex items-center gap-2">
-                <span className="text-lg">🩺</span>
-                <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide">Next Vet</p>
-                  <p className="text-sm font-semibold text-gray-700">{nextVet}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-3">
-              <button 
-                onClick={handleEdit}
-                className="flex-1 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#EDA35A] to-[#e0954a] text-white font-medium hover:from-[#e0954a] hover:to-[#d48640] transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-              >
-                ✏️ Edit
-              </button>
-              <button 
-                onClick={handleDelete}
-                className="flex-1 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#c8d4a8] to-[#b8c898] text-gray-700 font-medium hover:from-[#b8c898] hover:to-[#a8b888] transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-              >
-                🗑️ Delete
-              </button>
-            </div>
-          </div>
+        {/* Action Buttons */}
+        <div className="flex justify-start gap-3 mt-4">
+          <button
+            onClick={handleEdit}
+            className="p-2 bg-white/30 backdrop-blur-sm rounded-full shadow-md text-white hover:bg-white/50 transition-colors duration-200"
+            aria-label="Edit pet"
+            title="Edit"
+          >
+            ✏️
+          </button>
+          <button
+            onClick={handleDelete}
+            className="p-2 bg-white/30 backdrop-blur-sm rounded-full shadow-md text-white hover:bg-white/50 transition-colors duration-200"
+            aria-label="Delete pet"
+            title="Delete"
+          >
+            🗑️
+          </button>
         </div>
       </div>
     </div>

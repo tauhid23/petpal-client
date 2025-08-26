@@ -29,6 +29,15 @@ export const fetchPets = async (): Promise<Pet[]> => {
   return res.json();
 };
 
+// Get All Pets By ownerId
+export const fetchPetsByOwner = async (ownerId:string): Promise<Pet[]> => {
+  const res = await fetch(`http://localhost:5000/api/pets/owner/${ownerId}`);
+  if (!res.ok) throw new Error("Failed to fetch pets");
+  return res.json();
+};
+
+
+
 // Get Single Pet by ID
 export const fetchPetById = async (id: string): Promise<Pet> => {
   const res = await fetch(`http://localhost:5000/api/pets/${id}`);
