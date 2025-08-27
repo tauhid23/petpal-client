@@ -52,7 +52,7 @@ const MyPets: React.FC = () => {
           No pets found. Add a new pet to get started!
         </p>
       ) : (
-        <div className="max-w-6xl mx-auto  grid grid-cols-3 gap-4">
+        <div className="max-w-6xl mx-auto  grid grid-cols-3 sm:grid-cols-1 md:grid-cols-3 gap-4">
           {pets.map((pet) => (
             <PetCard key={pet.id} pet={pet} onPetUpdate={loadPets} />
           ))}
