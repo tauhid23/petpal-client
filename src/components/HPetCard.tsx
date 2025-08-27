@@ -3,11 +3,11 @@ import type { Pet } from '../types/pet';
 import type { Comment } from '../types/comments';
 import { getCommentsByPet, createComment, likeComment } from '../services/commentService';
 import { FaHeart, FaComment, FaShareAlt } from 'react-icons/fa';
-import { motion } from 'framer-motion'; // Import motion
+import { motion } from 'framer-motion'; 
 
 interface HPetCardProps {
   pet: Pet;
-  userId: string; // logged in user id
+  userId: string;
 }
 
 const HPetCard: React.FC<HPetCardProps> = ({ pet, userId }) => {
@@ -59,7 +59,6 @@ const HPetCard: React.FC<HPetCardProps> = ({ pet, userId }) => {
   };
 
   return (
-    // Wrap the card in motion.div and apply the variants
     <motion.div
       className="max-w-sm mx-auto bg-white rounded-xl shadow-2xl overflow-hidden transform transition duration-500 hover:scale-105"
       variants={cardVariants}
@@ -102,7 +101,7 @@ const HPetCard: React.FC<HPetCardProps> = ({ pet, userId }) => {
           <h3 className="font-bold text-lg text-gray-800">Comments</h3>
           {comments.length > 0 ? (
             <div className="space-y-3 pr-2">
-              {comments.slice(0, 3).map((c) => (
+              {comments.slice(0, 1).map((c) => (
                 <div
                   key={c.id}
                   className="bg-gray-100 p-3 rounded-lg flex justify-between items-start"
@@ -124,7 +123,7 @@ const HPetCard: React.FC<HPetCardProps> = ({ pet, userId }) => {
             <p className="text-gray-500 text-center">No comments yet. Be the first!</p>
           )}
 
-          {comments.length > 3 && (
+          {comments.length > 2 && (
             <button
               onClick={handleToggleComments}
               className="w-full text-center text-blue-600 font-semibold mt-2 hover:underline"
